@@ -10,10 +10,12 @@
  */
 #include "doctest.h"
 #include "Matrix.hpp"
+
 #include <iostream>
 #include <stdexcept>
 #include <string>
 #include <vector>
+#include <algorithm>
 
 using namespace zich;
 using namespace std;

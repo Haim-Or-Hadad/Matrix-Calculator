@@ -23,11 +23,13 @@ namespace zich
         {
             this->num_of_rows = other_rows;
             this->num_of_colums = other_colums;
+            int counter = 0 ;
             for (int row = 0; row < this->num_of_rows; row++)
             {
                 for (int col = 0; col < this->num_of_colums; col++)
                 {
-                    this->matrix[row][col] = other[(double)(row + col*get_row())];
+                    this->matrix[row][col] = other.at((double)counter);
+                    counter++;
                 }
             }
         }
@@ -63,15 +65,25 @@ namespace zich
          * @brief Increament operators
          */
         Matrix & operator++();
-        Matrix operator++(int);//after
+        Matrix operator++(int)
+        {
+            Matrix temp(*this);
+            ++(*this);
+            return temp;
+        }
         Matrix & operator--();
-        Matrix operator--(int);//after - by value because firstly i change the value and after that reduce by 1
+        Matrix operator--(int){//after - by value because firstly i return the value and after that reduce by 1
+            Matrix temp(*this);
+            --(*this);
+            return temp;
+        }
+        
 
         /**
          * @brief matrixs Multiplication
          */
         Matrix operator*(Matrix &other);
-        friend Matrix operator*(const double mul,const Matrix &other);
+        friend Matrix operator*(const double mul,Matrix &other);
         Matrix& operator*=(const Matrix &other);
         Matrix& operator*=(double mul);
         /**
