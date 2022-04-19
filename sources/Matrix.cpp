@@ -251,23 +251,6 @@
  
     Matrix& Matrix::operator*=(const Matrix &other){
          check_can_multiply(this->get_col() , other.num_of_rows);
-        //  vector<double> mult_matrix;
-        //  //mult_matrix.resize(new_col * new_row);
-        //  int sum =0;
-        //  for (int row = 0; row < this->get_row(); row++)
-        //      {
-        //     for (int col = 0; col < other.get_col(); col++)
-        //     {
-        //         int count =0;
-        //          for (int e = 0; e < other.get_col(); e++)
-        //          {
-        //              sum += (this->matrix.at(row).at(e)) * (other.matrix.at(e).at(col));
-        //          }
-        //         this->matrix.at(row).at(count%this->num_of_colums) = sum;
-        //         count++;
-        //          sum = 0; 
-        //      }             
-        //       } 
         *this = *this * other;
          return *this;
     } 
@@ -296,14 +279,14 @@
             for (int j = 0; j < matrix.get_col(); j++)
             {
                out << matrix.matrix.at(i).at(j);
-               if (j!=matrix.get_col()-1)
+               if (j!=matrix.num_of_colums-1)
                {
                     out <<" ";
                }
             }
             out <<"]";
 
-            if (i!=matrix.get_row()-1)
+            if (i!=matrix.num_of_rows-1)
             {
                 out << "\n";
             }
