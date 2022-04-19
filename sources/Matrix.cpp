@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <iostream>
+#include <sstream>
+#include <fstream>
 #include <map>
 #include <vector>
 #include <string>
@@ -169,13 +171,13 @@
         return flag;
     }
 
-    bool Matrix::operator==(const Matrix &other)const{
-        check_same_dimentions(this->get_col(), this->get_row(), other.num_of_colums , other.num_of_rows);
-        for (int row = 0; row < get_row(); row++)
+    bool operator==(Matrix const &curr , Matrix const &other){
+        check_same_dimentions(curr.get_col(), curr.get_row(), other.get_col() , other.get_row());
+        for (int row = 0; row < curr.get_row(); row++)
         {
-            for (int col = 0; col < get_col(); col++)
+            for (int col = 0; col < curr.get_col(); col++)
             {
-                if (this->matrix.at(row).at(col) != other.matrix.at(row).at(col))
+                if (curr.matrix.at(row).at(col) != other.matrix.at(row).at(col))
                 {
                     return false;
                 }
@@ -184,21 +186,10 @@
         return true;
     }
 
-    bool Matrix::operator!=(const Matrix &other)const {
-        check_same_dimentions(this->get_col(), this->get_row(), other.num_of_colums , other.num_of_rows);
-        for (int row = 0; row < get_row(); row++)
-        {
-            for (int col = 0; col < get_col(); col++)
-            {
-                if (this->matrix.at(row).at(col) != other.matrix.at(row).at(col))
-                {
-                    return true;
-                }
-            }
-        }
-        return false;
-    } 
-
+    bool operator!=(const Matrix &curr , const Matrix &other) {
+        //check_same_dimentions(this->get_col(), this->get_row(), other.num_of_colums , other.num_of_rows);
+        return !(curr == other);
+    }
 //**********Overloading 2-Increament operators*****//
      Matrix & Matrix::operator++(){
         for (int row = 0; row < get_row(); row++)
@@ -224,18 +215,18 @@
 
 
 //********Overloading 3-Multiplication operators****//
-    Matrix Matrix::operator*(Matrix &other){
+    Matrix Matrix::operator*(const Matrix &other){
          check_can_multiply(this->get_col() , other.num_of_rows);
          vector<double> mult_matrix;
          int new_col = this->get_row();
          int new_row = other.get_col();
          //mult_matrix.resize(new_col * new_row);
          int sum =0;
-         for (int row = 0; row < other.get_row()-1; row++)
+         for (int row = 0; row < this->get_row(); row++)
              {
-            for (int col = 0; col < this->get_col()-1; col++)
+            for (int col = 0; col < other.get_col(); col++)
             {
-                 for (int e = 0; e < this->get_col(); e++)
+                 for (int e = 0; e < other.get_row(); e++)
                  {
                      sum += (this->matrix.at(row).at(e)) * (other.matrix.at(e).at(col));
                  }
@@ -255,62 +246,130 @@
                 mult_mat.push_back(other.matrix.at(row).at(col) * mul);
             }
         }   
-        return Matrix(mult_mat,3,3);
+        return Matrix(mult_mat,other.get_col(),other.get_col());
     }
  
     Matrix& Matrix::operator*=(const Matrix &other){
          check_can_multiply(this->get_col() , other.num_of_rows);
-         vector<double> mult_matrix;
-         //mult_matrix.resize(new_col * new_row);
-         int sum =0;
-         for (int row = 0; row < other.get_row()-1; row++)
-             {
-            for (int col = 0; col < this->get_col()-1; col++)
-            {
-                 for (int e = 0; e < this->get_col(); e++)
-                 {
-                     sum += (this->matrix.at(row).at(e)) * (other.matrix.at(e).at(col));
-                 }
-                 mult_matrix.push_back(sum);
-                 sum = 0; 
-             }             
-              } 
-         *this = {mult_matrix,this->get_col() , other.num_of_rows};
+        //  vector<double> mult_matrix;
+        //  //mult_matrix.resize(new_col * new_row);
+        //  int sum =0;
+        //  for (int row = 0; row < this->get_row(); row++)
+        //      {
+        //     for (int col = 0; col < other.get_col(); col++)
+        //     {
+        //         int count =0;
+        //          for (int e = 0; e < other.get_col(); e++)
+        //          {
+        //              sum += (this->matrix.at(row).at(e)) * (other.matrix.at(e).at(col));
+        //          }
+        //         this->matrix.at(row).at(count%this->num_of_colums) = sum;
+        //         count++;
+        //          sum = 0; 
+        //      }             
+        //       } 
+        *this = *this * other;
          return *this;
     } 
-    
-    Matrix& Matrix::operator*=(double mul){
-        for (int row = 0; row < get_row(); row++)
+        Matrix Matrix::operator*(const double mul)const{
+        vector<double> mult_mat;
+        for (int row = 0; row < this->get_row(); row++)
         {
-            for (int col = 0; col < get_col(); col++)
+            for (int col = 0; col < this->get_col(); col++)
             {
-                this->matrix.at(row).at(col) = (this->matrix.at(row).at(col)*
-                                                mul);
-             }   
-         }
-         return *this;
-    } 
-    
-//*******input and output operators********//
-ostream &operator<<(ostream& out, const Matrix &matrix){
-    string answer;
-    for (int row = 0; row < matrix.num_of_rows; row++)
-    {
-        for (int col = 0; col < matrix.num_of_colums; col++)
-        {
-            answer += to_string(matrix.matrix.at(row).at(col));
+                mult_mat.push_back(this->matrix.at(row).at(col) * mul);
+            }
+        }   
+        return Matrix(mult_mat,this->get_row(),this->get_col());
+    }
+    Matrix& Matrix::operator*=(const double mul){
+            *this=*this*mul;
+        return *this;
         }
-        answer += '\n';   
-    }
-    return out << answer;
-}
 
-istream &operator>>(istream& in , Matrix &matrix){
+   
+//*******input and output operators********//
+    ostream &operator<<(ostream &out, const Matrix& matrix){
+        for (int i = 0; i < matrix.get_row(); i++)
+        {
+            out <<"[";
+            for (int j = 0; j < matrix.get_col(); j++)
+            {
+               out << matrix.matrix.at(i).at(j);
+               if (j!=matrix.get_col()-1)
+               {
+                    out <<" ";
+               }
+            }
+            out <<"]";
+
+            if (i!=matrix.get_row()-1)
+            {
+                out << "\n";
+            }
+        } 
+        return out ;
+    }
+istream &operator>>(istream &in, Matrix &matrix){
+    string text;
+    string current_line;
+    string vector;
+    int num_of_row = 0;
+    string mat;
+    std::vector<double> vec;
+     while(getline(in,current_line)){
+            text+=current_line;
+        }
+    for (uint i = 0; i < text.size()-1; i++)
+    {
+        if((text.at(i) == '[' && text.at(i+1) == ' ')|| (text.at(i) == '[' && text.at(i+1) == ',')){
+            __throw_invalid_argument("error");
+        }
+        if(text.at(i) == ']' && text.at(i+1) != ','){
+            __throw_invalid_argument("error");
+        }
+        if(text.at(i) == ',' && text.at(i+1) != ' '){
+            __throw_invalid_argument("error");
+        }
+        if (text.at(i) == '['){
+            num_of_row++;
+        }
+        if (isdigit(text.at(i)) != 0 || text.at(i) == ' ' || text.at(i) == ',')
+        {
+            mat += text.at(i);
+        }
+    }
+        string current_num;
+        int num_of_col = 0;
+        int counter = 0;
+        //bool flag = true;
+        for (uint i =0; i<mat.length(); i++){
+            counter++;
+            // if (mat.at(i) == ',' && flag ){
+            //     num_of_col = counter;
+            //     flag = false;
+            // }
+            
+            if (isdigit(mat.at(i)) != 0)
+            {
+                current_num += mat.at(i);
+            }
+            if((mat.at(i) == ' ') || i == mat.length()-1)
+            {
+                vec.push_back(stod(current_num));
+                current_num.clear();
+            }
+
+        }
+    matrix = Matrix{vec,3,4};
     return in;
-    }
+ 
+}
  }
-
 //  int main(){
+//     zich::Matrix mat1{{1,1,1,1,0,0,0,0,1},3,3};
+//     istringstream is7{"[1 1 1 1], [1 1 1 1], [1 1 1 1]\n"};
+//     is7 >> mat1;
 //     cout << "****test to addition of two matrix: operator '+'" << endl;
 //     vector<double> mistake_add = {2,0,0};
 //     zich::Matrix a_{{1,2,3,4,5,6,7,8,9},3,3};
@@ -381,6 +440,14 @@ istream &operator>>(istream& in , Matrix &matrix){
 //     cout << rr_ << endl;
 //     cout << ss_ << endl;
 //     cout << rr_ * ss_ << endl;
-
- 
+//     zich::Matrix mat_identity_3{{1,0,0,0,1,0,0,0,1},3,3};
+//     cout << mat_identity_3 * mat_identity_3 << endl;
+//     vector<double> identity = {1, 0, 0, 0, 1, 0, 0, 0, 1};
+//     zich::Matrix mat_1{identity,3,3};
+//     cout << mat_1*4 <<endl;
+//     cout << mat_1*7 <<endl;
+//     zich::Matrix niss{{1,2,3,4,5,6,7,8,9},3,3};
+//     cout << niss * 4 << endl;
+//     std::vector<double> arr_e= {4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0};
 //  }
+ 

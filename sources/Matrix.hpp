@@ -21,6 +21,14 @@ namespace zich
         int get_col() const { return num_of_colums; }
         Matrix(vector<double> other, int other_rows, int other_colums)
         {
+            if (other.size() != other_rows*other_colums)
+            {
+                __throw_invalid_argument("can't to initilize the matrix");
+            }
+            if ( other_colums < 0 || other_rows < 0){
+                __throw_invalid_argument("bad input");
+            }
+            
             this->num_of_rows = other_rows;
             this->num_of_colums = other_colums;
             int counter = 0 ;
@@ -28,7 +36,7 @@ namespace zich
             {
                 for (int col = 0; col < this->num_of_colums; col++)
                 {
-                    this->matrix[row][col] = other.at((double)counter);
+                    this->matrix[row][col] = other.at((double)col+row*this->num_of_colums);
                     counter++;
                 }
             }
@@ -57,8 +65,9 @@ namespace zich
         bool operator>=(const Matrix &other)const;
         bool operator<(const Matrix &other)const;
         bool operator<=(const Matrix &other)const;
-        bool operator==(const Matrix &other)const;
-        bool operator!=(const Matrix &other)const;
+        //bool operator==(const Matrix &other)const;
+        friend bool operator==(Matrix const &curr ,Matrix const &other);
+        friend bool operator!=(Matrix const &curr , Matrix const &other);
 
         //int & operator()(int colum, int row);
         /**
@@ -82,10 +91,13 @@ namespace zich
         /**
          * @brief matrixs Multiplication
          */
-        Matrix operator*(Matrix &other);
+        Matrix operator*(const Matrix &other);
         friend Matrix operator*(const double mul,Matrix &other);
         Matrix& operator*=(const Matrix &other);
-        Matrix& operator*=(double mul);
+        Matrix operator*(const double mul)const;
+        Matrix& operator*=(const double mul);
+    
+        // Matrix operator*(double scalar);
         /**
          * @brief input and output operators
          */
